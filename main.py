@@ -3,9 +3,10 @@ from bs4 import BeautifulSoup
 import json
 import re
 
-url1 = "写你自己的练武题主页"
-url2 = "写你自己的擂台赛主页"
-MacaronSession = '你自己的token'
+# url1 = "写你自己的练武题主页"
+# url2 = "写你自己的擂台赛主页"
+# MacaronSession = '你自己的token'
+# lenpage = 你自己的wp页数
 
 def get_data_from_url(url):
     response = requests.get(url)
@@ -30,11 +31,12 @@ def get_name_set(data):
         name_set.add(row['name'])
     return name_set
 
-def get_name1(headers):
+def get_uploaded_filenames(headers):
     url3 = "https://information.isclab.org.cn/wpupload/getdata"
-    name1 = set()
-
-    for i in range(1, 4):
+    uploaded_filenames = set()
+    duplicates = set()
+    
+    for i in range(1, page_count+1):
         payload = {"pageindex": str(i)}
         response = requests.post(url3, headers=headers, json=payload)
         data = json.loads(response.content)
@@ -43,22 +45,24 @@ def get_name1(headers):
             match = re.search(r'-([\w\W]+)_', filename)
             if match:
                 title = match.group(1)
-                name1.add(title)
-    return name1
+                if title in uploaded_filenames:
+                    duplicates.add(title)
+                else:
+                    uploaded_filenames.add(title)
+    return uploaded_filenames, duplicates
 
 def main():
 
-    data1 = get_data_from_url(url1)
-    data2 = get_data_from_url(url2)
-
-    print("练武共有"+str(len(data1)-1))
-    print("打擂共有"+str(len(data2)))
-
-    name_set1 = get_name_set(data1)
-    name_set2 = get_name_set(data2)
-    name_set = name_set1.union(name_set2)
-    name_set.remove('Choice')
-    name_set.remove('实战题')
+    training_data = get_data_from_url(training_page_url)
+    arena_data = get_data_from_url(arena_page_url)
+    print('*********************************')
+    print("练武共有"+str(len(training_data)-2))
+    print("打擂共有"+str(len(arena_data)))
+    training_names = get_name_set(training_data)
+    arena_names = get_name_set(arena_data)
+    all_names = training_names.union(arena_names)
+    all_names.remove('Choice')
+    all_names.remove('实战题')
     headers = {
     "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate, br, zstd",
@@ -66,7 +70,7 @@ def main():
     "Connection": "keep-alive",
     "Content-Length": "17",
     "Content-Type": "application/json",
-    "Cookie": "MacaronSession="+MacaronSession,
+    "Cookie": "MacaronSession="+macaron_session,
     "Host": "information.isclab.org.cn",
     "Origin": "https://information.isclab.org.cn",
     "Referer": "https://information.isclab.org.cn/wpupload",
@@ -78,11 +82,30 @@ def main():
     "Sec-Fetch-Site": "same-origin",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     }
-
-    name1 = get_name1(headers)
-    print('未提交wp的有以下题目：')
-    for i in name_set-name1:
-        print(i)
+    
+    uploaded_filenames = get_uploaded_filenames(headers)[0]
+    print('有效wp有'+str(len(uploaded_filenames))+'个,共有'+str(len(all_names))+'道题')
+    print('*********************************')
+    
+    if len(all_names - uploaded_filenames) == 0:
+        print('\n')
+        print('*********************************')
+        print('恭喜你已经完成所有WriteUp的上传')
+        print('*********************************')
+    else:
+        print('\n')
+        print('*********************************')
+        print('未提交wp的有以下题目：')
+        for i in all_names - uploaded_filenames:
+            print(i)
+        print('*********************************')
+    if get_uploaded_filenames(headers)[1]!=0:
+        print('\n')
+        print('*********************************')
+        print('重复提交的有以下题目：')
+        for i in get_uploaded_filenames(headers)[1]:
+            print(i)
+        print('*********************************')
 
 if __name__ == "__main__":
     main()
