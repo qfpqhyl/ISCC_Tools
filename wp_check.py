@@ -10,7 +10,7 @@ import re
 
 def get_data_from_url(url):
     response = requests.get(url)
-    print('服务器状态（都为200时正常运行，别私聊我脚本问题了师傅们）：' + response.status_code)  
+    print('服务器状态（都为200时正常运行，别私聊我脚本问题了师傅们）：' + str(response.status_code))  
     soup = BeautifulSoup(response.text, 'html.parser')
 
     data = []
