@@ -3,13 +3,14 @@ from bs4 import BeautifulSoup
 import json
 import re
 
-# url1 = "写你自己的练武题主页"
-# url2 = "写你自己的擂台赛主页"
-# MacaronSession = '你自己的token'
-# lenpage = 你自己的wp页数
+# training_page_url = "你的练武主页链接"
+# arena_page_url = "你的擂台主页链接"
+# macaron_session = 'wp页面下的macaron_session'
+# page_count = wp页面下的总页数
 
 def get_data_from_url(url):
     response = requests.get(url)
+    print('服务器状态（都为200时正常运行，别私聊我脚本问题了师傅们）：' + str(response.status_code))  
     soup = BeautifulSoup(response.text, 'html.parser')
 
     data = []
