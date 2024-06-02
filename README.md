@@ -13,6 +13,21 @@
 
    ![不是我的](https://telegraph-image.pages.dev/file/e42ad0ec30d5843305bfd.png)
 
+### notice.py
+
+通过添加Outlook账号与密码以及通知邮箱，实现ISCC平台文章更新邮件通知，配置如下所示。
+
+```python
+# 设置发件人Outlook邮箱信息
+sender_email = ''
+sender_password = ''
+
+# 设置收件人邮箱信息
+receiver_email = ''
+```
+
+
+
 ### TODO
 
 - tododododododo..............
